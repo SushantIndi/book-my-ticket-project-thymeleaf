@@ -17,6 +17,18 @@ spring:
   data:
     redis:
       url: redis://localhost:6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sushantmindi@gmail.com
+    password: ${APP-PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 admin:
-  email: admin@gmail.com
-  password: admin1234
+  email: baadshah2003@gmail.com
+  password: Baadshah@2211
