@@ -1,14 +1,19 @@
 package com.Movie_Project.Movie_Tickets.Service;
 
+import java.io.IOException;
+
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.Movie_Project.Movie_Tickets.DTO.LoginDTO;
 import com.Movie_Project.Movie_Tickets.DTO.PasswordDTO;
+import com.Movie_Project.Movie_Tickets.DTO.ScreenDto;
+import com.Movie_Project.Movie_Tickets.DTO.TheaterDto;
 import com.Movie_Project.Movie_Tickets.DTO.UserDTO;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 public interface UserService {
 	String register(UserDTO userDto, BindingResult result, RedirectAttributes attributes);
@@ -30,4 +35,32 @@ public interface UserService {
 	String blockUser(Long id,HttpSession session, RedirectAttributes attributes);
 
 	String unBlockUser(Long id, HttpSession session, RedirectAttributes attributes);
+	
+	String manageTheater(ModelMap map, RedirectAttributes attributes, HttpSession session);
+
+	String loadAddTheater(HttpSession session,RedirectAttributes attributes, TheaterDto theaterDto);
+
+	String addTheater(HttpSession session, RedirectAttributes attributes, @Valid TheaterDto theaterDto,BindingResult result) throws IOException;
+	
+	String deleteTheater(Long id, HttpSession session, RedirectAttributes attributes);
+
+	String editTheater(Long id, HttpSession session, RedirectAttributes attributes, ModelMap map);
+
+	String updateTheater(HttpSession session, RedirectAttributes attributes, @Valid TheaterDto theaterDto, BindingResult result, Long id);
+
+	String manageScreens(Long id, HttpSession session, RedirectAttributes attributes, ModelMap map);
+
+	String addScreen(Long id, HttpSession session, RedirectAttributes attributes, ModelMap map, ScreenDto screenDto);
+
+	String addScreen(ScreenDto screenDto,BindingResult result, HttpSession session, RedirectAttributes attributes);
+	
+	String deleteScreen(Long id, HttpSession session, RedirectAttributes attributes);
+
+	String editScreen(Long id, HttpSession session, RedirectAttributes attributes, ModelMap map);
+
+	String updateScreen(@Valid ScreenDto screenDto, Long id, BindingResult result, HttpSession session, RedirectAttributes attributes, ModelMap map);
+
+	String manageSeats(Long id, HttpSession session, ModelMap map, RedirectAttributes attributes);
+
+	String addSeats(Long id, HttpSession session, ModelMap map, RedirectAttributes attributes);
 }
