@@ -1,6 +1,7 @@
 package com.Movie_Project.Movie_Tickets.DTO;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +18,7 @@ public class MovieDto {
 	@NotBlank(message = "* It is Required")
 	private String genre;
 	@NotBlank(message = "* It is Required")
-	private String duration;
+	private LocalTime duration;
 	private MultipartFile image;
 	@NotBlank(message = "* It is Required")
 	private String trailerLink;

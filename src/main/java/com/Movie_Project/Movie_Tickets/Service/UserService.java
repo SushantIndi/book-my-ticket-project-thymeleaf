@@ -10,6 +10,8 @@ import com.Movie_Project.Movie_Tickets.DTO.LoginDTO;
 import com.Movie_Project.Movie_Tickets.DTO.MovieDto;
 import com.Movie_Project.Movie_Tickets.DTO.PasswordDTO;
 import com.Movie_Project.Movie_Tickets.DTO.ScreenDto;
+import com.Movie_Project.Movie_Tickets.DTO.SeatLayoutForm;
+import com.Movie_Project.Movie_Tickets.DTO.ShowDto;
 import com.Movie_Project.Movie_Tickets.DTO.TheaterDto;
 import com.Movie_Project.Movie_Tickets.DTO.UserDTO;
 
@@ -70,5 +72,12 @@ public interface UserService {
 	String loadAddMovie(MovieDto movieDto, RedirectAttributes attributes, HttpSession session);
 
 	String addMovie(MovieDto movieDto, BindingResult result, RedirectAttributes attributes, HttpSession session);
+	
+	String saveSeats(Long id, SeatLayoutForm seatLayoutForm, HttpSession session, RedirectAttributes attributes);
 
+	String manageShows(Long id, ModelMap map, RedirectAttributes attributes, HttpSession session);
+
+	String addShow(Long id, ModelMap map, RedirectAttributes attributes, HttpSession session);
+
+	String addShow(ShowDto showDto, BindingResult result, RedirectAttributes attributes, HttpSession session);
 }
