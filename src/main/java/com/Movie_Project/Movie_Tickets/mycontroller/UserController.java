@@ -32,8 +32,8 @@ public class UserController {
 	private final UserService userService;
 	
 	@GetMapping({"/","/main"})
-	public String loadMain() {
-		return "main.html";
+	public String loadMain(ModelMap map) {
+		return userService.loadMain(map);
 	}
 	@GetMapping("/register")
 	public String loadRegister(UserDTO userDTO) {
@@ -201,8 +201,7 @@ public class UserController {
 	}
 
 	@PostMapping("/add-movie")
-	public String addMovie(@Valid MovieDto movieDto, BindingResult result, RedirectAttributes attributes,
-			HttpSession session) {
+	public String addMovie(@Valid MovieDto movieDto, BindingResult result, RedirectAttributes attributes,HttpSession session) {
 		return userService.addMovie(movieDto, result, attributes, session);
 	}
 
@@ -217,8 +216,12 @@ public class UserController {
 	}
 
 	@PostMapping("/add-show")
-	public String addShow(@Valid ShowDto showDto, BindingResult result, RedirectAttributes attributes,
-			HttpSession session) {
-		return userService.addShow(showDto, result, attributes, session);
+	public String addShow(@Valid ShowDto showDto, BindingResult result, RedirectAttributes attributes, HttpSession session,ModelMap map) {
+		return userService.addShow(showDto, result, attributes, session, map);
+	}
+
+	@GetMapping("/book/movie/{id}")
+	public String bookMovie(@PathVariable Long id, HttpSession session, RedirectAttributes attributes, ModelMap map) {
+		return userService.bookMovie(id, session, attributes, map);
 	}
 }

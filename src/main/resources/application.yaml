@@ -34,4 +34,16 @@ admin:
   password: Baadshah@2211
   
 Cloudinary:
-  url:  CLOUDINARY_URL=cloudinary://654944213414524:qXkmBGHgxS8tqL3Sn6zXq7wJdN8@dhr1ckzrz
+  url:  ${CLOUDINARY_URL}
+
+  spring:
+    servlet:
+      multipart:
+        enabled: true
+        max-file-size: 50MB
+        max-request-size: 50MB
+
+  server:
+    tomcat:
+      max-swallow-size: 50MB
+      max-http-form-post-size: 50MB

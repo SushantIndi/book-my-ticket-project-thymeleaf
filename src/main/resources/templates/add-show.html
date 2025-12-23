@@ -1,29 +1,206 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Add Show</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Add Show - BookMyTicket Admin</title>
+
+	<!-- Google Font -->
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: "Poppins", sans-serif;
+			background: linear-gradient(135deg, #f0f4f8, #e8f0f7, #f0f4f8);
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+			color: #1a2332;
+		}
+
+		.form-container {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+		}
+
+		.form-box {
+			width: 100%;
+			max-width: 520px;
+			padding: 45px;
+			background: linear-gradient(
+				135deg,
+				rgba(100, 150, 255, 0.08),
+				rgba(255, 64, 129, 0.04)
+			);
+			border-radius: 20px;
+			border: 1.5px solid rgba(100, 150, 255, 0.2);
+			box-shadow: 0 20px 50px rgba(100, 150, 255, 0.1);
+			backdrop-filter: blur(10px);
+			animation: fadeInUp 0.7s ease;
+		}
+
+		h1 {
+			text-align: center;
+			font-size: 1.8rem;
+			font-weight: 700;
+			margin-bottom: 30px;
+		}
+
+		.form-group {
+			margin-bottom: 22px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 8px;
+			font-weight: 600;
+			font-size: 0.95rem;
+		}
+
+		.form-control {
+			width: 100%;
+			padding: 12px 16px;
+			border-radius: 10px;
+			border: 1.5px solid rgba(100, 150, 255, 0.15);
+			background: rgba(255, 255, 255, 0.75);
+			font-family: "Poppins", sans-serif;
+			font-size: 0.95rem;
+			transition: 0.3s ease;
+		}
+
+		.form-control:focus {
+			outline: none;
+			border-color: #6496ff;
+			box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.15);
+			background: rgba(255, 255, 255, 0.9);
+		}
+
+		select.form-control {
+			cursor: pointer;
+		}
+
+		.error-text {
+			color: #ff4081;
+			font-size: 0.85rem;
+			margin-top: 5px;
+			font-weight: 600;
+			display: block;
+		}
+
+		.button-group {
+			display: flex;
+			gap: 15px;
+			justify-content: center;
+			margin-top: 30px;
+		}
+
+		.btn-submit {
+			background: linear-gradient(135deg, #6496ff, #ff4081);
+			color: #fff;
+			border: none;
+			padding: 12px 32px;
+			border-radius: 10px;
+			font-weight: 600;
+			cursor: pointer;
+			font-size: 1rem;
+			transition: 0.3s ease;
+		}
+
+		.btn-submit:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(100, 150, 255, 0.35);
+		}
+
+		.btn-cancel {
+			background: rgba(100, 150, 255, 0.1);
+			border: 1.5px solid rgba(100, 150, 255, 0.3);
+			color: #6496ff;
+			padding: 12px 32px;
+			border-radius: 10px;
+			font-weight: 600;
+			text-decoration: none;
+			transition: 0.3s ease;
+		}
+
+		.btn-cancel:hover {
+			background: rgba(100, 150, 255, 0.2);
+		}
+
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+	</style>
 </head>
+
 <body>
-	<div align="center">
-		<h1>Add Show</h1>
-		<form action="/add-show" method="post" th:object="${showDto}">
-			<input type="hidden" th:field="*{screenId}"> Select Show
-			Date: <input type="date" th:field="*{showDate}"> <span
-				th:errors="*{showDate}"></span> <br>
-			<br> Select Show Start Time: <input type="time"
-				th:field="*{startTime}"> <span th:errors="*{startTime}"></span>
-			<br>
-			<br> Select Movie: <select th:field="*{movieId}">
-				<option th:each="movie:${movies}" th:value="${movie.id}"
-					th:text="${movie.name}"></option>
-			</select> <span th:errors="*{movieId}"></span> <br>
-			<br> Select Show Price : <input type="number"
-				th:field="*{ticketPrice}"> <span th:errors="*{ticketPrice}"></span>
-			<br>
-			<br>
-			<button>Add Show</button>
-		</form>
+
+	<div class="form-container">
+		<div class="form-box">
+			<h1>🎟️ Add Show</h1>
+
+			<form action="/add-show" method="post" th:object="${showDto}">
+
+				<input type="hidden" th:field="*{screenId}">
+
+				<!-- Show Date -->
+				<div class="form-group">
+					<label>Show Date *</label>
+					<input type="date" class="form-control" th:field="*{showDate}">
+					<span class="error-text" th:errors="*{showDate}"></span>
+				</div>
+
+				<!-- Start Time -->
+				<div class="form-group">
+					<label>Start Time *</label>
+					<input type="time" class="form-control" th:field="*{startTime}">
+					<span class="error-text" th:errors="*{startTime}"></span>
+				</div>
+
+				<!-- Movie -->
+				<div class="form-group">
+					<label>Select Movie *</label>
+					<select class="form-control" th:field="*{movieId}">
+						<option value="">-- Select Movie --</option>
+						<option th:each="movie : ${movies}"
+								th:value="${movie.id}"
+								th:text="${movie.name}">
+						</option>
+					</select>
+					<span class="error-text" th:errors="*{movieId}"></span>
+				</div>
+
+				<!-- Ticket Price -->
+				<div class="form-group">
+					<label>Ticket Price (₹) *</label>
+					<input type="number" class="form-control" th:field="*{ticketPrice}" placeholder="Enter price">
+					<span class="error-text" th:errors="*{ticketPrice}"></span>
+				</div>
+
+				<!-- Buttons -->
+				<div class="button-group">
+					<button type="submit" class="btn-submit">Add Show</button>
+					<a href="/manage-shows" class="btn-cancel">Cancel</a>
+				</div>
+
+			</form>
+		</div>
 	</div>
+
 </body>
 </html>

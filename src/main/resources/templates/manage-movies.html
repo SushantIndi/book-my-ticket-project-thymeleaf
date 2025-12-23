@@ -386,7 +386,7 @@
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav ms-auto">
 					<li class="nav-item">
-						<a class="nav-link" href="/admin-dashboard">Dashboard</a>
+						<a class="nav-link" href="/main">Dashboard</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="/manage-movies">Movies</a>
@@ -415,7 +415,7 @@
 		</div>
 
 		<!-- MOVIES TABLE -->
-		<div th:if="${!movies.isEmpty()}">
+		<div th:if="${movies != null and !movies.isEmpty()}">
 			<div class="table-wrapper">
 				<table class="table">
 					<thead>
@@ -440,7 +440,7 @@
 							</td>
 							<td th:text="${movie.duration}"></td>
 							<td th:text="${movie.languages}"></td>
-							<td th:text="${#dates.format(movie.releaseDate, 'dd/MM/yyyy')}"></td>
+							<td th:text="${#temporals.format(movie.releaseDate, 'dd/MM/yyyy')}"></td>
 							<td>
 								<div class="action-cell">
 									<a href="#" class="btn-edit">Edit</a>
@@ -454,7 +454,7 @@
 		</div>
 
 		<!-- EMPTY STATE -->
-		<div th:if="${movies.isEmpty()}" class="empty-state">
+		<div th:if="${movies == null or movies.isEmpty()}" class="empty-state">
 			<h2>📭 No Movies Found</h2>
 			<p>No movies have been added yet. Click the button below to create your first movie.</p>
 			<a href="/add-movie" class="add-btn">+ Add First Movie</a>

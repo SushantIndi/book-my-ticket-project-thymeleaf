@@ -1,17 +1,147 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Manage Shows</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Manage Shows</title>
+
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: "Poppins", sans-serif;
+			background: linear-gradient(135deg, #f0f4f8, #e8f0f7, #f0f4f8);
+			min-height: 100vh;
+			padding: 40px 20px;
+			color: #1a2332;
+		}
+
+		h1 {
+			text-align: center;
+			margin-bottom: 30px;
+			font-weight: 700;
+		}
+
+		.top-bar {
+			display: flex;
+			justify-content: center;
+			margin-bottom: 30px;
+		}
+
+		.btn-add {
+			background: linear-gradient(135deg, #6496ff, #ff4081);
+			color: white;
+			padding: 12px 28px;
+			border-radius: 10px;
+			text-decoration: none;
+			font-weight: 600;
+			transition: 0.3s ease;
+		}
+
+		.btn-add:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(100, 150, 255, 0.35);
+		}
+
+		.show-container {
+			max-width: 1100px;
+			margin: auto;
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 25px;
+		}
+
+		.show-card {
+			background: linear-gradient(
+				135deg,
+				rgba(100, 150, 255, 0.08),
+				rgba(255, 64, 129, 0.04)
+			);
+			border: 1.5px solid rgba(100, 150, 255, 0.2);
+			border-radius: 18px;
+			padding: 25px;
+			box-shadow: 0 15px 40px rgba(100, 150, 255, 0.1);
+			transition: 0.3s ease;
+		}
+
+		.show-card:hover {
+			transform: translateY(-4px);
+		}
+
+		.show-title {
+			font-size: 1.1rem;
+			font-weight: 700;
+			margin-bottom: 12px;
+			color: #1a2332;
+		}
+
+		.show-detail {
+			font-size: 0.95rem;
+			margin-bottom: 6px;
+			color: #344055;
+		}
+
+		.show-detail span {
+			font-weight: 600;
+			color: #1a2332;
+		}
+
+		.empty-state {
+			text-align: center;
+			font-size: 1rem;
+			color: #5a6b7d;
+			margin-top: 40px;
+		}
+	</style>
 </head>
+
 <body>
-<div align="center">
-	<div th:if="${!shows.isEmpty()}">
-		<h1 th:text="${shows}"></h1>
+
+	<h1>🎭 Manage Shows</h1>
+
+	<div class="top-bar">
+		<a th:href="'/add-show/' + ${id}" class="btn-add">➕ Add Show</a>
 	</div>
-	
-	<a th:href="'/add-show/'+${id}"><button>Add Show</button></a>
-	
-</div>
+
+	<!-- SHOW LIST -->
+	<div th:if="${!shows.isEmpty()}" class="show-container">
+
+		<div class="show-card" th:each="show : ${shows}">
+			<div class="show-title" th:text="${show.movie.name}">Movie Name</div>
+
+			<div class="show-detail">
+				<span>Date:</span>
+				<span th:text="${show.showDate}"></span>
+			</div>
+
+			<div class="show-detail">
+				<span>Start Time:</span>
+				<span th:text="${show.startTime}"></span>
+			</div>
+
+			<div class="show-detail">
+				<span>End Time:</span>
+				<span th:text="${show.endTime}"></span>
+			</div>
+
+			<div class="show-detail">
+				<span>Price:</span>
+				₹<span th:text="${show.ticketPrice}"></span>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- EMPTY STATE -->
+	<div th:if="${shows.isEmpty()}" class="empty-state">
+		No shows available for this screen yet 🎟️
+	</div>
+
 </body>
 </html>
