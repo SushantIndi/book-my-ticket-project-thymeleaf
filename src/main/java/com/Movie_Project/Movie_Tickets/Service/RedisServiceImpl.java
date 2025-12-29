@@ -6,7 +6,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.Movie_Project.Movie_Tickets.DTO.UserDTO;
+import com.Movie_Project.Movie_Tickets.DTO.UserDto;
+import com.Movie_Project.Movie_Tickets.Entity.BookedTicket;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +20,7 @@ public class RedisServiceImpl implements RedisService {
 
 	@Override
 	@Async
-	public void saveUserDto(String email, UserDTO userDto) {
+	public void saveUserDto(String email, UserDto userDto) {
 		redisTemplate.opsForValue().set("dto-" + email, userDto, Duration.ofMinutes(2));
 	}
 
@@ -30,8 +31,8 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public UserDTO getDtoByEmail(String email) {
-		return (UserDTO) redisTemplate.opsForValue().get("dto-" + email);
+	public UserDto getDtoByEmail(String email) {
+		return (UserDto) redisTemplate.opsForValue().get("dto-" + email);
 	}
 
 	@Override
@@ -41,5 +42,15 @@ public class RedisServiceImpl implements RedisService {
 			return 0;
 		else
 			return (int) otp;
+	}
+	
+	@Override
+	public void saveTicket(String id, BookedTicket ticket) {
+		redisTemplate.opsForValue().set(id, ticket, Duration.ofMinutes(15));
+	}
+
+	@Override
+	public BookedTicket getTicket(String razorpay_order_id) {
+		return (BookedTicket) redisTemplate.opsForValue().get(razorpay_order_id);
 	}
 }

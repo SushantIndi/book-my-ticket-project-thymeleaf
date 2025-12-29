@@ -1,25 +1,29 @@
 package com.Movie_Project.Movie_Tickets.mycontroller;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.Movie_Project.Movie_Tickets.DTO.LoginDTO;
+import com.Movie_Project.Movie_Tickets.DTO.LoginDto;
 import com.Movie_Project.Movie_Tickets.DTO.MovieDto;
-import com.Movie_Project.Movie_Tickets.DTO.PasswordDTO;
+import com.Movie_Project.Movie_Tickets.DTO.PasswordDto;
 import com.Movie_Project.Movie_Tickets.DTO.ScreenDto;
 import com.Movie_Project.Movie_Tickets.DTO.SeatLayoutForm;
 import com.Movie_Project.Movie_Tickets.DTO.ShowDto;
 import com.Movie_Project.Movie_Tickets.DTO.TheaterDto;
-import com.Movie_Project.Movie_Tickets.DTO.UserDTO;
+import com.Movie_Project.Movie_Tickets.DTO.UserDto;
 import com.Movie_Project.Movie_Tickets.Service.UserService;
+import com.google.zxing.WriterException;
+import com.razorpay.RazorpayException;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -36,12 +40,12 @@ public class UserController {
 		return userService.loadMain(map);
 	}
 	@GetMapping("/register")
-	public String loadRegister(UserDTO userDTO) {
+	public String loadRegister(UserDto userDTO) {
 		return "register.html";
 	}
 
 	@PostMapping("/register")
-	public String register(@Valid UserDTO userDto, BindingResult result, RedirectAttributes attributes) {
+	public String register(@Valid UserDto userDto, BindingResult result, RedirectAttributes attributes) {
 		return userService.register(userDto, result, attributes);
 	}
 
@@ -51,7 +55,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/login")
-	public String login(LoginDTO dto,RedirectAttributes attributes,HttpSession session) {
+	public String login(LoginDto dto,RedirectAttributes attributes,HttpSession session) {
 		return userService.login(dto,attributes,session);
 	}
 	
@@ -86,12 +90,12 @@ public class UserController {
 	}
 
 	@GetMapping("/reset-password")
-	public String resetPassword(PasswordDTO passwordDTO) {
+	public String resetPassword(PasswordDto passwordDTO) {
 		return "reset-password.html";
 	}
 
 	@PostMapping("/reset-password")
-	public String resetPassword(@Valid PasswordDTO passwordDTO,BindingResult result,ModelMap map, RedirectAttributes attributes) {
+	public String resetPassword(@Valid PasswordDto passwordDTO,BindingResult result,ModelMap map, RedirectAttributes attributes) {
 		return userService.resetPassword(passwordDTO,result, attributes,map);
 	}
 	
@@ -185,11 +189,36 @@ public class UserController {
 	}
 
 	@PostMapping("/add-seats/{id}")
-	public String saveSeats(@PathVariable Long id, SeatLayoutForm seatLayoutForm, HttpSession session,
-			RedirectAttributes attributes) {
+	public String saveSeats(@PathVariable Long id, @ModelAttribute SeatLayoutForm seatLayoutForm, HttpSession session, RedirectAttributes attributes) {
+
 		return userService.saveSeats(id, seatLayoutForm, session, attributes);
 	}
+	
+	@GetMapping("/edit-seats/{id}")
+	public String editSeats(@PathVariable Long id, HttpSession session, ModelMap map, RedirectAttributes attributes) {
+	    return userService.loadEditSeats(id, session, map, attributes);
+	}
 
+	@PostMapping("/edit-seats/{id}")
+	public String updateSeats(@PathVariable Long id, SeatLayoutForm seatLayoutForm, HttpSession session, RedirectAttributes attributes) {
+	    return userService.updateSeats(id, seatLayoutForm, session, attributes);
+	}
+	
+	@PostMapping("/delete-seat-row")
+	public String deleteSeatRow(@RequestParam Long screenId, @RequestParam String rowName, HttpSession session, RedirectAttributes attributes) {
+	    return userService.deleteSeatRow(screenId, rowName, session, attributes);
+	}
+	
+	@PostMapping("/delete-all-seats/{screenId}")
+	public String deleteAllSeats(@PathVariable Long screenId, HttpSession session, RedirectAttributes attributes) {
+	    return userService.deleteAllSeats(screenId, session, attributes);
+	}
+	
+	@GetMapping("/delete-movie/{id}")
+	public String deleteMovie(@PathVariable Long id, HttpSession session, RedirectAttributes attributes) {
+		return userService.deleteMovie(id, session, attributes);
+	}
+	
 	@GetMapping("/manage-movies")
 	public String manageMovies(HttpSession session, RedirectAttributes attributes, ModelMap map) {
 		return userService.manageMovies(session, attributes, map);
@@ -223,5 +252,33 @@ public class UserController {
 	@GetMapping("/book/movie/{id}")
 	public String bookMovie(@PathVariable Long id, HttpSession session, RedirectAttributes attributes, ModelMap map) {
 		return userService.bookMovie(id, session, attributes, map);
+	}
+	
+	@GetMapping("/delete-show/{id}")
+	public String deleteShow(@PathVariable Long id, RedirectAttributes attributes, HttpSession session) {
+		return userService.deleteShow(id, session, attributes);
+	}
+	
+	@GetMapping("/selectShows")
+	public String displayShows(@RequestParam Long movieId, @RequestParam LocalDate date, RedirectAttributes attributes,
+			ModelMap map) {
+		return userService.displayShowsOnDate(date, movieId, attributes, map);
+	}
+
+	@GetMapping("/show-seats/{id}")
+	public String showSeats(@PathVariable Long id, HttpSession session, RedirectAttributes attributes, ModelMap map) {
+		return userService.showSeats(id, session, attributes, map);
+	}
+
+	@PostMapping("/confirm-booking")
+	public String confirmBooking(@RequestParam Long showId, @RequestParam Long[] seatIds, HttpSession session,
+			ModelMap map, RedirectAttributes attributes) throws RazorpayException {
+		return userService.confirmBooking(showId, seatIds, session, map, attributes);
+	}
+	
+	@PostMapping("/confirm-ticket")
+	public String confirmTicket(HttpSession session, ModelMap map, RedirectAttributes attributes,
+			@RequestParam String razorpay_payment_id, @RequestParam String razorpay_order_id) throws IOException, WriterException {
+		return userService.confirmTicket(session, map, attributes, razorpay_order_id, razorpay_payment_id);
 	}
 }

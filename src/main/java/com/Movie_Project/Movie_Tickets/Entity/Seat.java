@@ -10,14 +10,16 @@ import lombok.Data;
 @Data
 @Entity
 public class Seat {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String seatNumber;
-	private String seatRow;
-	private Integer seatColumn;
+
+	private String seatNumber;   // A1, B2
+	private String seatRow;      // A, B
+	private String seatColumn;   // 1, 2, L
 	private String category;
-	
+
 	@ManyToOne
-	Screen screen;
+	private Screen screen;
 }

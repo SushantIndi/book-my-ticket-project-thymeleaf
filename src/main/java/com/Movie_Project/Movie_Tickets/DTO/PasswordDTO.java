@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class PasswordDTO {
+public class PasswordDto {
 	@DecimalMin(value = "100000", message = "* Invalid OTP")
 	@DecimalMax(value = "999999", message = "* Invalid OTP")
 	private int otp;

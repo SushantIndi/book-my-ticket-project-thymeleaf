@@ -2,126 +2,176 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>Manage Seats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Seats - BookMyTicket Admin</title>
 
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-	rel="stylesheet">
-<link
-	href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
-	rel="stylesheet">
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 
 <style>
+/* ===== YOUR CSS (UNCHANGED) ===== */
 body {
 	font-family: "Poppins", sans-serif;
-	background: #f4f6f9;
+	background: #f8f9fa;
+	color: #2c3e50;
+	min-height: 100vh;
+	padding-top: 80px;
 }
 
-.container {
-	max-width: 1100px;
-	margin-top: 40px;
+.navbar {
+	background: #fff !important;
+	padding: 1rem 2rem;
+	box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 1000;
 }
 
-.screen-label {
-	text-align: center;
-	font-weight: 700;
+.navbar-brand {
+	font-weight: 800;
+	font-size: 1.5rem;
+	color: #e74c3c !important;
+}
+
+.admin-container {
+	max-width: 1200px;
+	margin: auto;
+	padding: 20px;
+}
+
+.admin-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 	margin-bottom: 30px;
-	padding: 12px;
-	background: linear-gradient(135deg, #6496ff, #ff4081);
-	color: white;
-	border-radius: 10px;
-	letter-spacing: 2px;
 }
 
-.row-wrapper {
+.add-btn {
+	background: #e74c3c;
+	color: white;
+	padding: 0.8rem 1.8rem;
+	border-radius: 8px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.seat-layout {
+	background: #fff;
+	padding: 25px;
+	border-radius: 12px;
+	box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.seat-row {
 	display: flex;
 	align-items: center;
-	margin-bottom: 12px;
+	gap: 12px;
 }
 
-.row-name {
-	width: 70px;
+.row-label {
+	width: 50px;
 	font-weight: 700;
+	font-size: 1.1rem;
 }
 
 .seat {
-	width: 36px;
-	height: 36px;
+	width: 45px;
+	height: 45px;
 	border-radius: 6px;
-	margin: 3px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 0.75rem;
 	font-weight: 600;
+	transition: 0.2s;
 }
 
-.STANDARD {
-	background: #e3f2fd;
-	border: 1px solid #64b5f6;
+.seat:hover {
+	transform: scale(1.1);
+	box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.PREMIUM {
-	background: #fff3cd;
-	border: 1px solid #ffca28;
-}
+.REGULAR { background: #87ceeb; }
+.PREMIUM { background: #ffb347; }
+.VIP { background: gold; }
 
-.VIP {
-	background: #f8d7da;
-	border: 1px solid #f44336;
-}
-
-.actions {
-	margin-top: 30px;
-	text-align: end;
+.empty-state {
+	background: #fff;
+	padding: 50px;
+	border-radius: 12px;
+	text-align: center;
+	box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 </style>
 </head>
-
 <body>
 
-	<div class="container">
+<!-- NAVBAR -->
+<nav class="navbar">
+	<a class="navbar-brand" href="/">🎬 BookMyTicket</a>
+</nav>
 
-		<!-- ================= NO SEATS ================= -->
-		<div th:if="${#maps.isEmpty(seatsByRow)}" class="text-center mt-5">
-			<h3>No Seat Layout Found</h3>
-			<p class="text-muted">This screen does not have a seat layout
-				yet.</p>
+<div class="admin-container">
 
-			<a th:href="@{/add-seats/{id}(id=${screenId})}"
-				class="btn btn-primary mt-3"> + Create Seat Layout </a>
+	<!-- HEADER -->
+	<div class="admin-header">
+		<h1>🪑 Manage Seats</h1>
+		<div class="d-flex gap-2">
+			<a th:href="@{'/add-seats/' + ${screenId}}" class="add-btn">+ Add Seats</a>
+			<a th:href="@{'/edit-seats/' + ${screenId}}" class="add-btn">✏ Edit</a>
+
+			<!-- DELETE ALL SEATS -->
+			<form th:action="@{'/delete-all-seats/' + ${screenId}}"
+			      method="post"
+			      onsubmit="return confirm('Are you sure you want to delete ALL seats?')">
+				<button class="add-btn" style="background:#6c757d;">💣 Delete All</button>
+			</form>
 		</div>
+	</div>
 
-		<!-- ================= SEATS EXIST ================= -->
-		<div th:if="${!#maps.isEmpty(seatsByRow)}">
+	<!-- EMPTY STATE -->
+	<div th:if="${seatsByRow == null or seatsByRow.isEmpty()}" class="empty-state">
+		<h2>No Seats Found</h2>
+		<p>Add seats to visualize the screen layout.</p>
+	</div>
 
-			<div class="screen-label">🎬 SCREEN THIS SIDE 🎬</div>
+	<!-- SEAT LAYOUT -->
+	<div th:if="${seatsByRow != null and !seatsByRow.isEmpty()}" class="seat-layout">
 
-			<!-- GROUP BY ROW -->
-			<div th:each="rowEntry : ${seatsByRow}">
+		<div th:each="entry : ${seatsByRow}" class="seat-row">
 
-				<div class="row-wrapper">
-					<div class="row-name" th:text="${rowEntry.key}"></div>
+			<!-- ROW LABEL -->
+			<div class="row-label" th:text="${entry.key}"></div>
 
-					<div class="d-flex flex-wrap">
-						<div th:each="seat : ${rowEntry.value}" class="seat"
-							th:classappend="${seat.category}" th:text="${seat.seatColumn}">
-						</div>
-					</div>
-				</div>
-
+			<!-- SEATS -->
+			<div th:each="seat : ${entry.value}"
+			     th:text="${seat.seatColumn}"
+			     th:class="'seat ' + ${seat.category}">
 			</div>
 
-			<!-- ACTIONS -->
-			<div class="actions">
+			<!-- DELETE ROW -->
+			<form th:action="@{/delete-seat-row}"
+			      method="post"
+			      onsubmit="return confirm('Delete row ' + '[[${entry.key}]]' + '?')">
 
-				<a href="/manage-theaters" class="btn btn-secondary ms-2"> ←
-					Back </a>
-			</div>
+				<input type="hidden" name="screenId" th:value="${screenId}">
+				<input type="hidden" name="rowName" th:value="${entry.key}">
 
+				<button class="btn btn-sm btn-outline-danger ms-3">
+					🗑
+				</button>
+			</form>
 		</div>
 
 	</div>
+
+</div>
 
 </body>
 </html>
