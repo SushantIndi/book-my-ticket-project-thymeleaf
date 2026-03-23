@@ -21,7 +21,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: sushantmindi@gmail.com
-    password: ${APP_PASSWORD}
+    password: xina ksuc ofsn mxew
     properties:
       mail:
         smtp:
@@ -33,8 +33,8 @@ admin:
   email: baadshah2003@gmail.com
   password: Baadshah@2211
   
-Cloudinary:
-  url:  ${CLOUDINARY_URL}
+cloudinary:
+  url:  cloudinary://<654944213414524>:<qXkmBGHgxS8tqL3Sn6zXq7wJdN8>@dhr1ckzrz
 
   spring:
     servlet:
