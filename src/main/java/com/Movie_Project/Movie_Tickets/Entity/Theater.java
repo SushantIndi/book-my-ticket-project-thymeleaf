@@ -1,9 +1,13 @@
 package com.Movie_Project.Movie_Tickets.Entity;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import lombok.Data;
 
@@ -23,5 +27,8 @@ public class Theater {
 	@Column(nullable = false)
 	private String imageLocation;
 	private int screenCount;
+	
+	@OneToMany(mappedBy = "theater", cascade = CascadeType.ALL)
+	private List<Screen> screens;
 
 }

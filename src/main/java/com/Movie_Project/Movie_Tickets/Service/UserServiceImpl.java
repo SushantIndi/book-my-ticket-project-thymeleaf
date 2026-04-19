@@ -547,23 +547,37 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public String manageSeats(Long id, HttpSession session, ModelMap map, RedirectAttributes attributes) {
-		User user = getUserFromSession(session);
-		if (user == null || !user.getRole().equals("ADMIN")) {
-		    attributes.addFlashAttribute("fail", "Invalid Session");
-		    return "redirect:/login";
-		}
 
-		Screen screen = screenRepository.findById(id).orElseThrow(() -> new RuntimeException("Screen not found"));
-		List<Seat> seats = seatRepository.findByScreenOrderBySeatRowAscSeatColumnAsc(screen);
+	    User user = getUserFromSession(session);
+	    if (user == null || !user.getRole().equals("ADMIN")) {
+	        attributes.addFlashAttribute("fail", "Invalid Session");
+	        return "redirect:/login";
+	    }
 
-		Map<String, List<Seat>> seatsByRow = seats.stream()
-		    .collect(Collectors.groupingBy(Seat::getSeatRow, LinkedHashMap::new, Collectors.toList()));
+	    // Fetch screen safely
+	    Screen screen = screenRepository.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Screen not found with ID: " + id));
 
-		map.put("seatsByRow", seatsByRow);
-		map.put("screenId", id);
+	    // Fetch seats
+	    List<Seat> seats = seatRepository
+	            .findByScreenOrderBySeatRowAscSeatColumnAsc(screen);
 
-		return "manage-seats";
+	    // Group seats by row
+	    Map<String, List<Seat>> seatsByRow = seats.stream()
+	            .collect(Collectors.groupingBy(
+	                    Seat::getSeatRow,
+	                    LinkedHashMap::new,
+	                    Collectors.toList()
+	            ));
 
+	    // 🔥 IMPORTANT FIXES
+	    map.put("seatsByRow", seatsByRow);
+	    map.put("screenId", id);
+
+	    map.put("screen", screen);                       // ✅ Needed for navigation
+	    map.put("theater", screen.getTheater());         // ✅ Needed for return to screens
+
+	    return "manage-seats";
 	}
 
 	@Override
@@ -586,136 +600,140 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public String saveSeats(Long screenId, SeatLayoutForm form, HttpSession session, RedirectAttributes attributes) {
+	public String saveSeats(Long screenId, SeatLayoutForm form,
+	                        HttpSession session,
+	                        RedirectAttributes attributes) {
 
-		User user = getUserFromSession(session);
-		if (user == null || !"ADMIN".equals(user.getRole())) {
-			attributes.addFlashAttribute("fail", "Invalid Session");
-			return "redirect:/login";
-		}
+	    User user = getUserFromSession(session);
+	    if (user == null || !"ADMIN".equals(user.getRole())) {
+	        attributes.addFlashAttribute("fail", "Invalid Session");
+	        return "redirect:/login";
+	    }
 
-		Screen screen = screenRepository.findById(screenId)
-				.orElseThrow(() -> new RuntimeException("Screen not found"));
+	    Screen screen = screenRepository.findById(screenId)
+	            .orElseThrow(() -> new RuntimeException("Screen not found"));
 
-		if (form.getRows() == null || form.getRows().isEmpty()) {
-			attributes.addFlashAttribute("fail", "No seat rows provided");
-			return "redirect:/manage-seats/" + screenId;
-		}
+	    int rows = form.getTotalRows();
+	    int cols = form.getTotalColumns();
 
-		for (SeatRowDto row : form.getRows()) {
+	    if (rows <= 0 || cols <= 0) {
+	        attributes.addFlashAttribute("fail", "Invalid rows or columns");
+	        return "redirect:/manage-seats/" + screenId;
+	    }
 
-			if (row.getColumns() == null || row.getColumns().isEmpty()) {
-				continue; // or throw exception
-			}
+	    for (int i = 0; i < rows; i++) {
 
-			for (SeatColumnDto column : row.getColumns()) {
+	        // Row names → A, B, C, D...
+	        String rowName = String.valueOf((char) ('A' + i));
 
-				Seat seat = new Seat();
-				seat.setScreen(screen);
-				seat.setSeatRow(row.getRowName());
-				seat.setSeatColumn(column.getName());
-				seat.setSeatNumber(row.getRowName() + column.getName());
-				seat.setCategory(row.getCategory());
+	        for (int j = 1; j <= cols; j++) {
 
-				seatRepository.save(seat);
-			}
-		}
+	            Seat seat = new Seat();
+	            seat.setScreen(screen);
+	            seat.setSeatRow(rowName);
+	            seat.setSeatColumn(String.valueOf(j));
+	            seat.setSeatNumber(rowName + j);
+	            seat.setCategory(form.getCategory());
 
-		attributes.addFlashAttribute("success", "Seats added successfully");
-		return "redirect:/manage-screens/" + screen.getTheater().getId();
+	            seatRepository.save(seat);
+	        }
+	    }
+
+	    attributes.addFlashAttribute("success", "Seats auto-generated successfully");
+	    return "redirect:/manage-seats/" + screenId;
 	}
 
 	
 	@Override
 	public String loadEditSeats(Long screenId, HttpSession session, ModelMap map, RedirectAttributes attributes) {
 
-		User user = getUserFromSession(session);
-		if (user == null || !"ADMIN".equals(user.getRole())) {
-			attributes.addFlashAttribute("fail", "Invalid Session");
-			return "redirect:/login";
-		}
+	    User user = getUserFromSession(session);
+	    if (user == null || !"ADMIN".equals(user.getRole())) {
+	        attributes.addFlashAttribute("fail", "Invalid Session");
+	        return "redirect:/login";
+	    }
 
-		Screen screen = screenRepository.findById(screenId)
-				.orElseThrow(() -> new RuntimeException("Screen not found"));
+	    Screen screen = screenRepository.findById(screenId)
+	            .orElseThrow(() -> new RuntimeException("Screen not found"));
 
-		List<Seat> seats = seatRepository
-				.findByScreenOrderBySeatRowAscSeatColumnAsc(screen);
+	    List<Seat> seats = seatRepository.findByScreenOrderBySeatRowAscSeatColumnAsc(screen);
 
-		// Group seats by row name (A, B, VIP...)
-		Map<String, List<Seat>> groupedSeats =
-				seats.stream()
-				     .collect(Collectors.groupingBy(
-				             Seat::getSeatRow,
-				             LinkedHashMap::new,
-				             Collectors.toList()
-				     ));
+	    SeatLayoutForm form = new SeatLayoutForm();
 
-		SeatLayoutForm form = new SeatLayoutForm();
+	    if (!seats.isEmpty()) {
 
-		for (Map.Entry<String, List<Seat>> entry : groupedSeats.entrySet()) {
+	        // 🧠 Calculate rows
+	        long rowCount = seats.stream()
+	                .map(Seat::getSeatRow)
+	                .distinct()
+	                .count();
 
-			SeatRowDto row = new SeatRowDto();
-			row.setRowName(entry.getKey());
-			row.setCategory(entry.getValue().get(0).getCategory());
+	        // 🧠 Calculate columns (max per row)
+	        int colCount = seats.stream()
+	                .collect(Collectors.groupingBy(Seat::getSeatRow))
+	                .values()
+	                .stream()
+	                .mapToInt(List::size)
+	                .max()
+	                .orElse(0);
 
-			List<SeatColumnDto> columns = new ArrayList<>();
+	        form.setTotalRows((int) rowCount);
+	        form.setTotalColumns(colCount);
+	        form.setCategory(seats.get(0).getCategory()); // assume same category
+	    }
 
-			for (Seat seat : entry.getValue()) {
-				SeatColumnDto column = new SeatColumnDto();
-				column.setName(seat.getSeatColumn()); // String column
-				columns.add(column);
-			}
+	    map.put("seatLayoutForm", form);
+	    map.put("screenId", screenId);
 
-			row.setColumns(columns);
-			form.getRows().add(row);
-		}
-
-		map.put("seatLayoutForm", form);
-		map.put("screenId", screenId);
-
-		return "edit-seats"; // edit-seats.html
+	    return "edit-seats";
 	}
 
 	
 	@Override
-	public String updateSeats(Long screenId, SeatLayoutForm form, HttpSession session, RedirectAttributes attributes) {
+	public String updateSeats(Long screenId, SeatLayoutForm form,
+	                          HttpSession session,
+	                          RedirectAttributes attributes) {
 
-		User user = getUserFromSession(session);
-		if (user == null || !"ADMIN".equals(user.getRole())) {
-			attributes.addFlashAttribute("fail", "Invalid Session");
-			return "redirect:/login";
-		}
+	    User user = getUserFromSession(session);
+	    if (user == null || !"ADMIN".equals(user.getRole())) {
+	        attributes.addFlashAttribute("fail", "Invalid Session");
+	        return "redirect:/login";
+	    }
 
-		Screen screen = screenRepository.findById(screenId)
-				.orElseThrow(() -> new RuntimeException("Screen not found"));
+	    Screen screen = screenRepository.findById(screenId)
+	            .orElseThrow(() -> new RuntimeException("Screen not found"));
 
-		// 🔥 delete old layout
-		seatRepository.deleteByScreen(screen);
+	    int rows = form.getTotalRows();
+	    int cols = form.getTotalColumns();
 
-		// 🔁 recreate seats using NEW column-based logic
-		if (form.getRows() != null) {
-			for (SeatRowDto row : form.getRows()) {
+	    if (rows <= 0 || cols <= 0) {
+	        attributes.addFlashAttribute("fail", "Invalid rows or columns");
+	        return "redirect:/manage-seats/" + screenId;
+	    }
 
-				if (row.getColumns() == null || row.getColumns().isEmpty()) {
-					continue; // skip empty rows safely
-				}
+	    // 🔥 Delete old layout
+	    seatRepository.deleteByScreen(screen);
 
-				for (SeatColumnDto column : row.getColumns()) {
+	    // 🔁 Generate new layout
+	    for (int i = 0; i < rows; i++) {
 
-					Seat seat = new Seat();
-					seat.setScreen(screen);
-					seat.setSeatRow(row.getRowName());
-					seat.setSeatColumn(column.getName());
-					seat.setSeatNumber(row.getRowName() + column.getName());
-					seat.setCategory(row.getCategory());
+	        String rowName = String.valueOf((char) ('A' + i));
 
-					seatRepository.save(seat);
-				}
-			}
-		}
+	        for (int j = 1; j <= cols; j++) {
 
-		attributes.addFlashAttribute("success", "Seat layout updated successfully");
-		return "redirect:/manage-seats/" + screenId;
+	            Seat seat = new Seat();
+	            seat.setScreen(screen);
+	            seat.setSeatRow(rowName);
+	            seat.setSeatColumn(String.valueOf(j));
+	            seat.setSeatNumber(rowName + j);
+	            seat.setCategory(form.getCategory());
+
+	            seatRepository.save(seat);
+	        }
+	    }
+
+	    attributes.addFlashAttribute("success", "Seat layout updated successfully");
+	    return "redirect:/manage-seats/" + screenId;
 	}
 	
 	@Transactional

@@ -112,9 +112,28 @@ body {
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-	<a class="navbar-brand" href="/">🎬 BookMyTicket</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <div class="container-fluid">
+
+        <!-- BRAND -->
+        <a class="navbar-brand" href="/">🎬 BookMyTicket</a>
+
+        <!-- RIGHT SIDE -->
+        <div class="ms-auto d-flex align-items-center gap-2">
+
+            <!-- BACK TO THEATERS -->
+            <a href="/manage-theaters" class="btn btn-outline-danger btn-sm">
+                ⬅ Theaters
+            </a>
+
+            <!-- BACK TO SCREENS -->
+            <a th:href="@{'/manage-screens/' + ${screen.theater.id}}" class="btn btn-outline-secondary btn-sm">
+                📺 Screens
+            </a>
+
+        </div>
+
+    </div>
 </nav>
 
 <div class="admin-container">

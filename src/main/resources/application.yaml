@@ -1,12 +1,18 @@
 server:
-  port: 80
+  port: 8080
+  tomcat:
+    max-swallow-size: 50MB
+    max-http-form-post-size: 50MB
+
 spring:
   application:
     name: Movie_Tickets
+
   datasource:
-    url: jdbc:mysql://localhost:3306/movie-project?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/movie_project?createDatabaseIfNotExist=true
     username: root
     password: root
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -14,9 +20,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
   data:
     redis:
       url: redis://localhost:6379
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -25,25 +34,22 @@ spring:
     properties:
       mail:
         smtp:
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
           auth: true
           starttls:
             enable: true
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 admin:
   email: baadshah2003@gmail.com
   password: Baadshah@2211
-  
+
 cloudinary:
-  url:  cloudinary://<654944213414524>:<qXkmBGHgxS8tqL3Sn6zXq7wJdN8>@dhr1ckzrz
-
-  spring:
-    servlet:
-      multipart:
-        enabled: true
-        max-file-size: 50MB
-        max-request-size: 50MB
-
-  server:
-    tomcat:
-      max-swallow-size: 50MB
-      max-http-form-post-size: 50MB
+  url: cloudinary://654944213414524:qXkmBGHgxS8tqL3Sn6zXq7wJdN8@dhr1ckzrz

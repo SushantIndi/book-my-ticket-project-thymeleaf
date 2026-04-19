@@ -450,7 +450,7 @@
 						<span class="info-text" th:text="${theater.address}"></span>
 					</div>
 
-					<span class="screen-count" th:text="'Screens: '+${theater.screenCount}"></span>
+					<span class="screen-count" th:text="'Screens: ' + ${theater.screens != null ? #lists.size(theater.screens) : 0}"></span>
 
 					<div class="card-actions">
 						<a th:href="'/edit-theater/'+${theater.id}" class="btn-edit">✏️ Edit</a>

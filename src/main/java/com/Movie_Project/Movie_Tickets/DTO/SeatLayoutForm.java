@@ -7,5 +7,7 @@ import lombok.Data;
 
 @Data
 public class SeatLayoutForm {
-	private List<SeatRowDto> rows = new ArrayList<>();
+	private int totalRows;
+	private int totalColumns;
+	private String category;
 }
