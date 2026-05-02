@@ -36,8 +36,8 @@ public class UserController {
 	private final UserService userService;
 	
 	@GetMapping({"/","/main"})
-	public String loadMain(ModelMap map) {
-		return userService.loadMain(map);
+	public String loadMain(ModelMap map, HttpSession session) {
+		return userService.loadMain(map, session);
 	}
 	@GetMapping("/register")
 	public String loadRegister(UserDto userDTO) {
@@ -280,5 +280,10 @@ public class UserController {
 	public String confirmTicket(HttpSession session, ModelMap map, RedirectAttributes attributes,
 			@RequestParam String razorpay_payment_id, @RequestParam String razorpay_order_id) throws IOException, WriterException {
 		return userService.confirmTicket(session, map, attributes, razorpay_order_id, razorpay_payment_id);
+	}
+	
+	@GetMapping("/bookings")
+	public String myBookings(HttpSession session, ModelMap map, RedirectAttributes attributes) {
+	    return userService.getUserBookings(session, map, attributes);
 	}
 }

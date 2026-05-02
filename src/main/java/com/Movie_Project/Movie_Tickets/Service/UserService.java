@@ -92,7 +92,7 @@ public interface UserService {
 
 	String addShow(ShowDto showDto, BindingResult result, RedirectAttributes attributes, HttpSession session, ModelMap map);
 	
-	String loadMain(ModelMap map);
+	String loadMain(ModelMap map, HttpSession session);
 	
 	String bookMovie(Long id, HttpSession session, RedirectAttributes attributes, ModelMap map);
 	
@@ -106,4 +106,8 @@ public interface UserService {
 
 	String confirmBooking(Long showId, Long[] seatIds, HttpSession session, ModelMap map, RedirectAttributes attributes) throws RazorpayException;
 
-	String confirmTicket(HttpSession session, ModelMap map, RedirectAttributes attributes, String razorpay_order_id, String razorpay_payment_id) throws IOException, WriterException;}
+	String confirmTicket(HttpSession session, ModelMap map, RedirectAttributes attributes, String razorpay_order_id, String razorpay_payment_id) throws IOException, WriterException;
+	
+	String getUserBookings(HttpSession session, ModelMap map, RedirectAttributes attributes);
+	
+}

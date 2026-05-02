@@ -1,6 +1,7 @@
 package com.Movie_Project.Movie_Tickets.Util;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -8,48 +9,62 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 
 @Component
 public class CloudinaryHelper {
 
-	@Value("${cloudinary.url}")
-	private String url;
+    @Value("${cloudinary.url}")
+    private String url;
 
-	public String generateImageLink(MultipartFile file) {
-		Cloudinary cloudinary = new Cloudinary(url);
+    private Cloudinary getCloudinary() {
+        return new Cloudinary(url);
+    }
 
-		Map params = ObjectUtils.asMap("folder", "BMT-Movies", "use_filename", true);
-		try {
-			return (String) cloudinary.uploader().upload(file.getBytes(), params).get("url");
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "https://placehold.co/600x400/EEE/31343C";
-		}
-	}
+    public String generateImageLink(MultipartFile file) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("folder", "BMT-Movies");
+        params.put("use_filename", true);
 
-	@SuppressWarnings("unchecked")
-	public String getTheaterImageLink(MultipartFile file) {
-		Cloudinary cloudinary = new Cloudinary(url);
+        try {
+            return (String) getCloudinary()
+                    .uploader()
+                    .upload(file.getBytes(), params)
+                    .get("url");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "https://placehold.co/600x400/EEE/31343C";
+        }
+    }
 
-		Map<String, Object> params = ObjectUtils.asMap("folder", "BMT-Theater", "use_filename", true);
-		try {
-			return (String) cloudinary.uploader().upload(file.getBytes(), params).get("url");
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "https://placehold.co/600x400/EEE/31343C";
-		}
-	}
-	
-	public String saveTicketQr(byte[] qr) {
-		Cloudinary cloudinary = new Cloudinary(url);
+    public String getTheaterImageLink(MultipartFile file) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("folder", "BMT-Theater");
+        params.put("use_filename", true);
 
-		Map<String, Object> params = ObjectUtils.asMap("folder", "BMT-Theater-QR", "use_filename", true);
-		try {
-			return (String) cloudinary.uploader().upload(qr, params).get("url");
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "https://placehold.co/600x400/EEE/31343C";
-		}
-	}
+        try {
+            return (String) getCloudinary()
+                    .uploader()
+                    .upload(file.getBytes(), params)
+                    .get("url");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "https://placehold.co/600x400/EEE/31343C";
+        }
+    }
+
+    public String saveTicketQr(byte[] qr) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("folder", "BMT-Theater-QR");
+        params.put("use_filename", true);
+
+        try {
+            return (String) getCloudinary()
+                    .uploader()
+                    .upload(qr, params)
+                    .get("url");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "https://placehold.co/600x400/EEE/31343C";
+        }
+    }
 }

@@ -25,9 +25,7 @@ import com.Movie_Project.Movie_Tickets.DTO.LoginDto;
 import com.Movie_Project.Movie_Tickets.DTO.MovieDto;
 import com.Movie_Project.Movie_Tickets.DTO.PasswordDto;
 import com.Movie_Project.Movie_Tickets.DTO.ScreenDto;
-import com.Movie_Project.Movie_Tickets.DTO.SeatColumnDto;
 import com.Movie_Project.Movie_Tickets.DTO.SeatLayoutForm;
-import com.Movie_Project.Movie_Tickets.DTO.SeatRowDto;
 import com.Movie_Project.Movie_Tickets.DTO.ShowDto;
 import com.Movie_Project.Movie_Tickets.DTO.TheaterDto;
 import com.Movie_Project.Movie_Tickets.DTO.UserDto;
@@ -558,7 +556,6 @@ public class UserServiceImpl implements UserService {
 	    Screen screen = screenRepository.findById(id)
 	            .orElseThrow(() -> new RuntimeException("Screen not found with ID: " + id));
 
-	    // Fetch seats
 	    List<Seat> seats = seatRepository
 	            .findByScreenOrderBySeatRowAscSeatColumnAsc(screen);
 
@@ -570,7 +567,6 @@ public class UserServiceImpl implements UserService {
 	                    Collectors.toList()
 	            ));
 
-	    // 🔥 IMPORTANT FIXES
 	    map.put("seatsByRow", seatsByRow);
 	    map.put("screenId", id);
 
@@ -922,12 +918,18 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public String loadMain(ModelMap map) {
-		Set<Movie> movies = showRepository.findByShowDateAfter(LocalDate.now().minusDays(1)).stream()
-				.map(Show::getMovie).collect(Collectors.toSet());
+	public String loadMain(ModelMap map, HttpSession session) {
 
-		map.put("movies", movies);
-		return "main";
+	    User user = (User) session.getAttribute("user");
+
+	    if (user != null && user.getRole().equals("USER")) {
+	        List<Movie> movies = movieRepository
+	                .findByReleaseDateGreaterThanEqual(LocalDate.now());
+
+	        map.put("movies", movies);
+	    }
+
+	    return "main";
 	}
 	
 	@Override
@@ -1109,6 +1111,23 @@ public class UserServiceImpl implements UserService {
 		}
 		map.put("ticket", ticket);
 		return "view-ticket.html";
+	}
+	
+	@Override
+	public String getUserBookings(HttpSession session, ModelMap map, RedirectAttributes attributes) {
+
+	    User user = getUserFromSession(session);
+
+	    if (user == null || !user.getRole().equals("USER")) {
+	        attributes.addFlashAttribute("fail", "Login required");
+	        return "redirect:/login";
+	    }
+
+	    List<BookedTicket> tickets = ticketRepository.findByUser(user);
+
+	    map.put("tickets", tickets);
+
+	    return "my-bookings"; // HTML page
 	}
 	
 }

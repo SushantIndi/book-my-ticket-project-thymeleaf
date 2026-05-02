@@ -522,7 +522,7 @@
 
 
 	<!-- MOVIES -->
-	<section class="container" id="movies" th:if="${!movies.isEmpty()}">
+	<section class="container" id="movies" th:if="${session.user != null and session.user.role == 'USER' and movies != null and !movies.isEmpty()}">
 		<h2 class="text-center fw-bold mb-5">Now Showing</h2>
 
 		<div class="row g-4">
